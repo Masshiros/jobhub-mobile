@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:jobhub/constants/app_constants.dart';
+import 'package:jobhub/models/request/auth/login_model.dart';
+import 'package:jobhub/services/helpers/auth_helper.dart';
+import 'package:jobhub/views/ui/auth/update_user.dart';
+import 'package:jobhub/views/ui/mainscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginNotifier extends ChangeNotifier {
@@ -10,7 +16,7 @@ class LoginNotifier extends ChangeNotifier {
     _obscureText = newState;
     notifyListeners();
   }
-  
+
   bool _firstTime = true;
 
   bool get firstTime => _firstTime;
@@ -68,5 +74,26 @@ class LoginNotifier extends ChangeNotifier {
     } else {
       return false;
     }
+  }
+
+  userLogin(LoginModel model) {
+    AuthHelper.login(model).then((response) {
+      if (response && firstTime) {
+        Get.off(() => const PersonalDetails());
+      } else if (response && !firstTime) {
+        Get.off(() => const MainScreen());
+      } else if (!response) {
+        Get.snackbar("Sign Failed", "Please Check your credentials",
+            colorText: Color(kLight.value),
+            backgroundColor: Colors.red,
+            icon: const Icon(Icons.add_alert));
+      }
+    });
+  }
+  logout() async{
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('loggedIn', false);
+    await prefs.remove('token');
+    _firstTime = false;
   }
 }
