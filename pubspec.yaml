@@ -25,6 +25,8 @@ dependencies:
   flutter_zoom_drawer: ^3.0.4+1
   flutter_chat_bubble: ^2.0.2
   flutter_animate: ^4.1.1+1
+  firebase_core: ^2.13.0
+  firebase_storage: ^11.2.1
   image_cropper: ^3.0.3
   image_picker: ^0.8.7+4
   cached_network_image: ^3.3.1

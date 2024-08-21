@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"android":{"default":{"projectId":"jobbub-project","appId":"1:168889220287:android:60895f29171867ed5e9a0a","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"jobbub-project","configurations":{"android":"1:168889220287:android:60895f29171867ed5e9a0a","ios":"1:168889220287:ios:208c95f21e01ffb45e9a0a"}}}}}}
