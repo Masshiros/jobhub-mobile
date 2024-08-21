@@ -1,17 +1,16 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as https;
-import 'package:jobhub/models/request/chat/create-chat.dart';
-import 'package:jobhub/models/response/chat/get_chat.dart';
-import 'package:jobhub/models/response/chat/inital-message.dart';
+import 'package:jobhub/models/request/message/send-message.dart';
+import 'package:jobhub/models/response/message/message-res.dart';
 import 'package:jobhub/services/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ChatHelper {
+class MesssagingHelper {
   static var client = https.Client();
 
   // Apply for job
-  static Future<List<dynamic>> apply(CreateChat model) async {
+  static Future<List<dynamic>> sendMessage(SendMessage model) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
@@ -20,20 +19,23 @@ class ChatHelper {
       'token': 'Bearer $token'
     };
 
-    var url = Uri.https(Config.apiUrl, Config.chatsUrl);
+    var url = Uri.https(Config.apiUrl, Config.messagingUrl);
     var response = await client.post(url,
         headers: requestHeaders, body: jsonEncode(model.toJson()));
-    print(response.statusCode);
-    if (response.statusCode == 200) {
-      var first = initialChatFromJson(response.body).id;
 
-      return [true, first];
+    if (response.statusCode == 200) {
+      ReceivedMessge message =
+          ReceivedMessge.fromJson(jsonDecode(response.body));
+
+      Map<String, dynamic> responseMap = jsonDecode(response.body);
+      return [true, message, responseMap];
     } else {
       return [false];
     }
   }
 
-  static Future<List<GetChats>> getConversations() async {
+  static Future<List<ReceivedMessge>> getMessages(
+      String chatId, int offset) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
@@ -42,18 +44,19 @@ class ChatHelper {
       'token': 'Bearer $token'
     };
 
-    var url = Uri.https(Config.apiUrl, Config.chatsUrl);
+    var url = Uri.https(Config.apiUrl, "${Config.messagingUrl}/$chatId",
+        {"page": offset.toString()});
     var response = await client.get(
       url,
       headers: requestHeaders,
     );
 
     if (response.statusCode == 200) {
-      var chats = getChatsFromJson(response.body);
+      var messages = receivedMessgeFromJson(response.body);
 
-      return chats;
+      return messages;
     } else {
-      throw Exception("Couldn't load chats");
+      throw Exception(" failed to load messages");
     }
   }
 }
